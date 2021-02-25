@@ -22,7 +22,8 @@ Create a file `.env` at the root level containing those variables
 - `HOOK_UID` unique id of the RESt service used to validate data has been successfully copied to external server.
 - `DROPBOX_TOKEN` OAuth2 Token of DropBox app. see: https://www.dropbox.com/developers
 - `DROPBOX_ROOT_DIR` Root path in DropBox, e.g.: `kobo-backups` (no slashes)
-
+- `DRY_RUN` Only delete submissions where it equals `False`
+- `RETENTION_DAYS` Number of days before submission can be deleted
 
 ## Run
 
