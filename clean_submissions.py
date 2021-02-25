@@ -29,7 +29,7 @@ SERVER = os.getenv('SERVER')
 # User's token. Can be retrieved at https://[kpi-url]/token
 KPI_TOKEN = os.getenv('KPI_TOKEN')
 # Number of days after a submitted related data that a submission can be deleted
-RETENTION_DAYS = 7
+RETENTION_DAYS = os.getenv('RETENTION_DAYS', 14)
 # Asset's unique ID. e.g. https://[kpi-url]/api/v2/assets/{asset_uid}/
 ASSET_UID = os.getenv('ASSET_UID')
 # Values of this question are used to build the backup path in Dropbox
@@ -38,6 +38,8 @@ QUESTION_NAME = os.getenv('QUESTION_NAME')
 HOOK_UID = os.getenv('HOOK_UID')
 # Number of submissions to retrieve/delete at once.
 BATCH_SIZE = 500
+# Dry run mode. Submissions will be deleted only if it equals `'False'`
+DRY_RUN = os.getenv('DRY_FUN')
 
 DROPBOX_TOKEN = os.getenv('DROPBOX_TOKEN')
 DROPBOX_ROOT_DIR = os.getenv('DROPBOX_ROOT_DIR')
@@ -75,9 +77,8 @@ def add_submission_ids(json_response):
                                                 '%Y-%m-%dT%H:%M:%S')
             delta = datetime.now() - submission_time
             # Submissions are sorted by `_submission_time`.
-            # No need to go further. Related asset's data cannot exist for this
-            # submission and next ones.
-            if delta.days < RETENTION_DAYS:
+            # No need to go further.
+            if delta.days < int(RETENTION_DAYS):
                 return False
 
             if result['_id'] in success_hook_logs_submission_ids:
@@ -115,10 +116,13 @@ def delete_submissions():
             })
         }
 
-        response = requests.delete(url,
-                                   headers={'Authorization': f'Token {TOKEN}'},
-                                   data=data)
-        response.raise_for_status()
+        if DRY_RUN == 'False':
+            response = requests.delete(
+                url,
+                headers={'Authorization': f'Token {KPI_TOKEN}'},
+                data=data
+            )
+            response.raise_for_status()
 
 
 def download_attachments(submission):
@@ -183,7 +187,7 @@ def get_submissions():
     # If today is younger than `FIRST_RUN`, we take data from the beginning
     log(f'Retrieving all submissions for asset `{ASSET_UID}`...')
     today = datetime.today().date()
-    max_date = today - timedelta(days=RETENTION_DAYS)
+    max_date = today - timedelta(days=int(RETENTION_DAYS))
 
     query_string = (
         f'fields=["_id", "_submission_time", "_attachments", "{QUESTION_NAME}"]'
@@ -258,11 +262,18 @@ def upload_to_dropbox(fullname, folder, subfolder, name, overwrite=False):
     return res
 
 
-if __name__ == '__main__':
-    log('Starting task...')
+def lambda_handler(event, context):
+    if DRY_RUN == 'True':
+        log('Starting task...')
+    else:
+        log('Starting task (Dry Run)...')
     connect_to_dropbox()
     get_success_hook_logs_submission_ids()
     get_submissions()
     delete_submissions()
     close_dropbox()
     log('Task is over!')
+
+
+if __name__ == '__main__':
+    lambda_handler(None, None)
