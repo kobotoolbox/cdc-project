@@ -12,13 +12,9 @@ import requests
 import dropbox
 
 """
-This script retrieves values (`related_items`) from one question (`RELATED_QUESTION_FOR_DELETION) 
-in a specific survey (i.e. `RELATED_ASSET_UID_FOR_DELETION`).
-Then, it deletes all submissions from another survey (`ASSET_UID`).
-Each submission must:
-- contain a question where its name must equal `QUESTION_FOR_DELETION`
-- have a value of question `QUESTION_FOR_DELETION` present in `related_items`
-- have been submitted successfully to external server (check with hook `HOOK_UID)
+This script deletes all submissions from the survey `ASSET_UID`.
+Each submission must have been submitted successfully to external server 
+(check with hook `HOOK_UID)
 """
 
 # Server domain with protocol. e.g. https://kf.kobotoolbox.org
@@ -36,7 +32,7 @@ HOOK_UID = os.getenv('HOOK_UID')
 # Number of submissions to retrieve/delete at once.
 BATCH_SIZE = 500
 # Dry run mode. Submissions will be deleted only if it equals `'False'`
-DRY_RUN = os.getenv('DRY_FUN')
+DRY_RUN = os.getenv('DRY_RUN')
 
 DROPBOX_TOKEN = os.getenv('DROPBOX_TOKEN')
 DROPBOX_ROOT_DIR = os.getenv('DROPBOX_ROOT_DIR')
@@ -253,14 +249,14 @@ def upload_to_dropbox(fullname, folder, subfolder, name, overwrite=False):
                 client_modified=datetime(*time.gmtime(mtime)[:6]),
                 mute=True)
         except dropbox.exceptions.ApiError as err:
-            log(f'*** API error {err}', error=True)
+            log(f'ERROR: DropBox API error {err}', error=True)
             return None
     log(f"uploaded as {res.name}")
     return res
 
 
 def lambda_handler(event, context):
-    if DRY_RUN == 'True':
+    if DRY_RUN == 'False':
         log('Starting task...')
     else:
         log('Starting task (Dry Run)...')

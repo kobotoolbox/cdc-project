@@ -27,3 +27,12 @@ Create a file `.env` at the root level containing those variables
 ## Run
 
 `pipenv run python clean_submissions.py`
+
+
+## AWS Lambda
+
+A script is provided `create-lambda-package.sh` to create a deployment package 
+for a lambda function.
+
+It creates a file called `cdc-deployment-package.zip` that can be uploaded from AWS lambda console (or with AWS CLI).
+
