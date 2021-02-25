@@ -24,11 +24,6 @@ Each submission must:
 
 load_dotenv()
 
-# Date when this script runs for the first time. Useful for next runs to narrow
-# down `related_items`.a
-FIRST_RUN = date(2030, 12, 31)
-# Number of days between each run. Has to match cron job.
-NUMBER_OF_DAYS_BETWEEN_RUNS = 7
 # Server domain with protocol. e.g. https://kf.kobotoolbox.org
 SERVER = os.getenv('SERVER')
 # User's token. Can be retrieved at https://[kpi-url]/token
@@ -37,10 +32,9 @@ KPI_TOKEN = os.getenv('KPI_TOKEN')
 RETENTION_DAYS = 7
 # Asset's unique ID. e.g. https://[kpi-url]/api/v2/assets/{asset_uid}/
 ASSET_UID = os.getenv('ASSET_UID')
-# Question name used to search for matches with `RELATED_ASSET_UID_FOR_DELETION`
-# Values must be found in `RELATED_ASSET_UID_FOR_DELETION` results to allow deletion
+# Values of this question are used to build the backup path in Dropbox
 QUESTION_NAME = os.getenv('QUESTION_NAME')
-# Hook's unique ID. e.g. https://[kpi-url]/api/v2/assets/{asset_uid}/hooks/{hook_uid}
+# Hook's unique ID. e.g. https://[kpi-url]/api/v2/assets/{asset_uid}/hooks/{hook_uid}  # noqa
 HOOK_UID = os.getenv('HOOK_UID')
 # Number of submissions to retrieve/delete at once.
 BATCH_SIZE = 500
@@ -121,10 +115,10 @@ def delete_submissions():
             })
         }
 
-        #response = requests.delete(url,
-        #                           headers={'Authorization': f'Token {TOKEN}'},
-        #                           data=data)
-        #response.raise_for_status()
+        response = requests.delete(url,
+                                   headers={'Authorization': f'Token {TOKEN}'},
+                                   data=data)
+        response.raise_for_status()
 
 
 def download_attachments(submission):
@@ -165,7 +159,7 @@ def download_attachments(submission):
                           DROPBOX_ROOT_DIR,
                           sub_folder,
                           filename,
-                          overwrite=True)
+                          overwrite=False)
 
         os.remove(tmp_file_path)
 
