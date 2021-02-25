@@ -6,11 +6,10 @@ import os
 import sys
 import tempfile
 import time
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 
 import requests
 import dropbox
-from dotenv import load_dotenv
 
 """
 This script retrieves values (`related_items`) from one question (`RELATED_QUESTION_FOR_DELETION) 
@@ -21,8 +20,6 @@ Each submission must:
 - have a value of question `QUESTION_FOR_DELETION` present in `related_items`
 - have been submitted successfully to external server (check with hook `HOOK_UID)
 """
-
-load_dotenv()
 
 # Server domain with protocol. e.g. https://kf.kobotoolbox.org
 SERVER = os.getenv('SERVER')
