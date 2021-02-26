@@ -24,6 +24,7 @@ Create a file `.env` at the root level containing those variables
 - `DROPBOX_ROOT_DIR` Root path in DropBox, e.g.: `kobo-backups` (no slashes)
 - `DRY_RUN` Only delete submissions where it equals `False`
 - `RETENTION_DAYS` Number of days before submission can be deleted
+- `LOG_DATETIME` By default, it is `True` but can be deactivated when the script runs in AWS Lambda environment where date/time is also added to the logs.
 
 ## Run
 

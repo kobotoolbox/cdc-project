@@ -32,7 +32,9 @@ HOOK_UID = os.getenv('HOOK_UID')
 # Number of submissions to retrieve/delete at once.
 BATCH_SIZE = 500
 # Dry run mode. Submissions will be deleted only if it equals `'False'`
-DRY_RUN = os.getenv('DRY_RUN')
+DRY_RUN = os.getenv('DRY_RUN', 'True')
+# Logs date/time when it equals `'True'` (default)
+LOG_DATETIME = os.getenv('LOG_DATETIME', 'True')
 
 DROPBOX_TOKEN = os.getenv('DROPBOX_TOKEN')
 DROPBOX_ROOT_DIR = os.getenv('DROPBOX_ROOT_DIR')
@@ -196,7 +198,10 @@ def get_submissions():
 def log(message, error=False):
     console = sys.stdout if not error else sys.stderr
     now = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-    console.write(f'[{now}] {message}\n')
+    if LOG_DATETIME == 'True':
+        console.write(f'[{now}] {message}\n')
+    else:
+        console.write(f'{message}\n')
 
 
 def retrieve_data(url, callback):
