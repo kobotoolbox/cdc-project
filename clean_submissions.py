@@ -53,7 +53,7 @@ def add_hook_logs_submission_ids(json_response):
     if results:
         for result in results:
             if result.get('status_code') == 200:
-                success_hook_logs_submission_ids.append(result['instance_id'])
+                success_hook_logs_submission_ids.append(result['submission_id'])
 
     return True
 
@@ -139,7 +139,8 @@ def download_attachments(submission):
                 error=True)
             continue
 
-        response = requests.get(download_url,
+        # FIX ME - hack to avoid losing token on redirection
+        response = requests.get(download_url.replace('kf.', 'kc.'),
                                 allow_redirects=True,
                                 headers={'Authorization': f'Token {KPI_TOKEN}'})
         if response.status_code != 200:
